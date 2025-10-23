@@ -1,6 +1,6 @@
 {
     "name": "@aguilita1/github-script-post-comment",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "GitHub Action to run custom JavaScript and post results to GitHub summary and Pull Request",
     "author": "Daniel I. Kelley",
     "license": "MIT",
