@@ -1,0 +1,80 @@
+name: 'GitHub Script with Post'
+description: 'Runs custom JavaScript and posts the result to GitHub Summary and Pull Request'
+author: 'Daniel I. Kelley'
+branding:
+  icon: 'code'
+  color: 'blue'
+
+inputs:
+  script:
+    description: 'JavaScript code to run'
+    required: true
+  label:
+    description: 'Identifies type of comment adding (e.g. lint)'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+  # REMINDER: the inputs.script from .github/actions/github-script-post-comment
+  # is processed first then inputs.script from actions/github-script@v8
+  #  
+    - name: Write script to file
+      shell: bash
+      run: |
+        # WARNING: Must use single-quoted HEREDOC (<<'EOF') to write the script
+        # exactly as provided. This preserves characters like $, ${}, 
+        # backticks, and multiline formatting without shell or YAML 
+        # interpolation — ensuring the JavaScript is written to the file 
+        # verbatim.
+        cat <<'EOF' > ext_script.js
+        ${{ inputs.script }}
+        EOF
+
+    - name: Run custom JavaScript and post results
+      uses: actions/github-script@v8
+      with:
+        script: |
+          const fs = require('fs');
+
+          try {
+            // Get the inputs passed to the GitHub Action
+            console.info('Received Input Label:', "${{ inputs.label }}");
+            console.info("Reading ext_script.js...");
+            const scriptContent = fs.readFileSync('ext_script.js', 'utf8');
+
+            // Dynamically execute the input script provided in GitHub Action
+            console.info('Executing script...');
+            // passing github, and context to function
+            const func = new Function('github', 'context', 'core', 'glob', 'io', 'exec', 'require', `
+              return (async () => {
+                ${scriptContent}
+              })();
+            `);
+            const body = await func(github, context, core, glob, io, exec, require);
+            console.info('Executed script successfully');
+
+            // Output to GITHUB_STEP_SUMMARY
+            const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+            if (summaryPath) {
+              fs.appendFileSync(summaryPath, '\n---\n');
+              fs.appendFileSync(summaryPath, body);
+              console.info(`📝 Appended ${{ inputs.label }} results to GITHUB_STEP_SUMMARY`);
+            } else {
+              console.warn('⚠️ GITHUB_STEP_SUMMARY is not defined.');
+            }
+
+            // Create comment on the pull request (if applicable)
+            if (context.eventName === 'pull_request') {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+              console.info(`💬 Commented ${{ inputs.label }} results on PR`);
+            }
+          } catch (error) {
+            console.error(`❌ Error processing ${{ inputs.label }} results:`, error);
+          }
