@@ -45,6 +45,11 @@ inputs:
     description: 'Optional GitHub REST API base URL for GitHub Enterprise'
     required: false
 
+outputs:
+  result:
+    description: 'The return value of the script, stringified with JSON.stringify'
+    value: ${{ steps.run-script.outputs.result }}
+
 runs:
   using: 'composite'
   steps:
@@ -64,6 +69,7 @@ runs:
         EOF
 
     - name: Run custom JavaScript and post results
+      id: run-script
       uses: actions/github-script@v8
       with:
         github-token: ${{ inputs.github-token }}
@@ -103,6 +109,9 @@ runs:
             const body = await func(github, context, core, glob, io, exec, require);
             console.info('✅ Executed user script successfully.');
 
+            // Store the result as an output for downstream steps
+            core.setOutput('result', JSON.stringify(body));
+
             // Output to GITHUB_STEP_SUMMARY
             if (postTarget === 'both' || postTarget === 'github-step-summary') {
               const summaryPath = process.env.GITHUB_STEP_SUMMARY;
@@ -131,4 +140,5 @@ runs:
             }
           } catch (error) {
             console.error(`❌ Error processing ${{ inputs.label }} results:`, error);
+            core.setOutput('result', JSON.stringify({ error: error.message }));
           }
