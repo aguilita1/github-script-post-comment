@@ -51,7 +51,7 @@ This examples will retrieve `coverage/coverage-summary.json` results from prior 
 
 ```yaml
 - name: Add Test Coverage Comment on PR and GitHub Summary
-  uses: aguilita1/github-script-post-comment
+  uses: aguilita1/github-script-post-comment@v1
   env:
     JEST_THRESHOLD_LINES: 75
   with:
