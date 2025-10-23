@@ -13,6 +13,10 @@ inputs:
     description: 'Identifies type of comment adding (e.g. lint)'
     required: false
     default: ''
+  post-target:
+    description: "Where to post the results — valid options: 'both', 'github-step-summary', 'pull-request'"
+    required: false
+    default: 'both'
 
 runs:
   using: 'composite'
@@ -40,12 +44,21 @@ runs:
 
           try {
             // Get the inputs passed to the GitHub Action
-            console.info('Received Input Label:', "${{ inputs.label }}");
+            let postTarget = "${{ inputs['post-target'] }}".toLowerCase().trim();
+
+            // Validate postTarget
+            const validOptions = ['both', 'github-step-summary', 'pull-request'];
+            if (!validOptions.includes(postTarget)) {
+              console.warn(`⚠️ Invalid post-target value '${postTarget}'. Defaulting to 'both'.`);
+              postTarget = 'both';
+            }
+            console.info("Received Input Label:", "${{ inputs.label }}");
+            console.info("Received Input post-target:", postTarget);
             console.info("Reading ext_script.js...");
             const scriptContent = fs.readFileSync('ext_script.js', 'utf8');
 
             // Dynamically execute the input script provided in GitHub Action
-            console.info('Executing script...');
+            console.info('🚀 Executing user script...');
             // passing github, and context to function
             const func = new Function('github', 'context', 'core', 'glob', 'io', 'exec', 'require', `
               return (async () => {
@@ -53,20 +66,22 @@ runs:
               })();
             `);
             const body = await func(github, context, core, glob, io, exec, require);
-            console.info('Executed script successfully');
+            console.info('✅ Executed user script successfully.');
 
             // Output to GITHUB_STEP_SUMMARY
-            const summaryPath = process.env.GITHUB_STEP_SUMMARY;
-            if (summaryPath) {
-              fs.appendFileSync(summaryPath, '\n---\n');
-              fs.appendFileSync(summaryPath, body);
-              console.info(`📝 Appended ${{ inputs.label }} results to GITHUB_STEP_SUMMARY`);
-            } else {
-              console.warn('⚠️ GITHUB_STEP_SUMMARY is not defined.');
+            if (postTarget === 'both' || postTarget === 'github-step-summary') {
+              const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+              if (summaryPath) {
+                fs.appendFileSync(summaryPath, '\n---\n');
+                fs.appendFileSync(summaryPath, body);
+                console.info(`📝 Appended ${{ inputs.label }} results to GITHUB_STEP_SUMMARY`);
+              } else {
+                console.warn('⚠️ GITHUB_STEP_SUMMARY is not defined.');
+              }
             }
 
             // Create comment on the pull request (if applicable)
-            if (context.eventName === 'pull_request') {
+            if ((postTarget === 'both' || postTarget === 'pull-request') && context.eventName === 'pull_request') {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -74,6 +89,10 @@ runs:
                 body: body,
               });
               console.info(`💬 Commented ${{ inputs.label }} results on PR`);
+            }
+
+            if (postTarget === 'pull-request' && context.eventName !== 'pull_request') {
+              console.info('⚠️ post-target is set to pull-request, but this workflow did not run on a pull_request event.');
             }
           } catch (error) {
             console.error(`❌ Error processing ${{ inputs.label }} results:`, error);
