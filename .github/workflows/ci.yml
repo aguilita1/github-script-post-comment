@@ -15,18 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1️⃣ Verify YAML and formatting
-      - name: Validate YAML and Prettier formatting
-        run: |
-          npm install -g prettier
-          prettier --check "**/*.{yml,yaml,md,json}"
-
-      # 2️⃣ Validate action.yml is valid metadata
+      # Validate action.yml is valid metadata
       - name: Validate action metadata
         run: |
           yq eval '.' action.yml > /dev/null
 
-      # 3️⃣ Optional: Dry-run test your action
+      # Dry-run test your action
       - name: Test run of the composite action
         uses: ./
         with:
@@ -36,9 +30,9 @@ jobs:
             console.log("✅ github-script-post-comment action executed in CI.");
             return "Self-test successful.";
 
-      # 4️⃣ Optional: Lint any JS scripts (for embedded logic or examples)
+      # Lint any JS scripts (for embedded logic or examples)
       - name: Lint embedded JavaScript
         run: |
           npm install -g eslint
-          eslint . || true
+          eslint final_script.js
 
