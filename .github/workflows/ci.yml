@@ -30,6 +30,13 @@ jobs:
             console.log("✅ github-script-post-comment action executed in CI.");
             return "Self-test successful.";
 
+      - name: Upload Embedded JavaScript
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: embedded-js
+          path: 'final_script.js'
+
       # Lint any JS scripts (for embedded logic or examples)
       - name: Lint embedded JavaScript
         env:
