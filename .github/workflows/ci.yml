@@ -53,6 +53,7 @@ jobs:
         run: |
           # This step uses `run` to execute a shell command
           ./action.sh > test_no_return.log 2>&1 || true
+          cat test_no_return.log
 
       - name: Verify Test Case 2 output
         run: |
