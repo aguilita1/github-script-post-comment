@@ -6,20 +6,20 @@
     "license": "MIT",
     "main": "action.yml",
     "repository": {
-      "type": "git",
-      "url": "https://github.com/aguilita1/github-script-post-comment.git"
+        "type": "git",
+        "url": "https://github.com/aguilita1/github-script-post-comment.git"
     },
     "keywords": [
-      "github",
-      "actions",
-      "javascript",
-      "post-comment",
-      "pull-request",
-      "github-step-summary",
-      "github-script"
+        "github",
+        "actions",
+        "javascript",
+        "post-comment",
+        "pull-request",
+        "github-step-summary",
+        "github-script"
     ],
-    "dependencies": {
-        "actions/github-script": "^8.0.0"
-      }      
-  }
-  
+    "devDependencies": {
+        "eslint": "^9.38.0",
+        "eslint-config-xo": "^0.49.0"
+    }
+}

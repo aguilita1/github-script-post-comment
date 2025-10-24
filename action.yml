@@ -152,4 +152,12 @@ runs:
             }
 
             core.setOutput('result', JSON.stringify({ error: error.message }));
+          } finally {
+            try {
+              const finalScript = core.getInput('script', { required: true });
+              fs.writeFileSync('final_script.js', finalScript, 'utf8');
+              console.info('📄 final_script.js written successfully in finally block.');
+            } catch (writeError) {
+              console.error('❌ Failed to write final_script.js in finally block:', writeError);
+            }
           }
