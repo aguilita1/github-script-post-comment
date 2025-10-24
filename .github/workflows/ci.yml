@@ -45,11 +45,12 @@ jobs:
       - name: Test Case 2 - Composite Action - No Return
         uses: ./
         id: test-no-return
+        continue-on-error: true
         with:
           label: "Self-Test-No-Return"
           script: |
             console.log("Expect error: script does not return string.");
-            console.log("The tags are ${{ inputs.tags }}");
+
       - name: Capture output
         run: |
           # This step uses `run` to execute a shell command
