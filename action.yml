@@ -140,5 +140,15 @@ runs:
             }
           } catch (error) {
             console.error(`❌ Error processing ${{ inputs.label }} results:`, error);
+
+            // Detect when user forgot to return a value (causing body = undefined)
+            if ( error.code === 'ERR_INVALID_ARG_TYPE' && /The "data" argument must be of type string/i.test(error.message)) {
+              console.error(
+                `💡 Hint: Your script did not return a string. ` +
+                `Make sure to end your script with a 'return' statement that produces a string, ` +
+                `for example:\n\n  return "✅ My script completed successfully.";`
+              );
+            }
+
             core.setOutput('result', JSON.stringify({ error: error.message }));
           }
