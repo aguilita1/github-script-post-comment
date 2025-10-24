@@ -3,7 +3,7 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
   {
-    ignores: ["package-lock.json", "ext_script.js",],
+    ignores: ["package-lock.json", "ext_script.js"],
   },
   config,
   {
