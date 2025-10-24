@@ -23,10 +23,11 @@ export default defineConfig([
       },
     },
     rules: {
+      "@stylistic/eol-last": "off",
       "@stylistic/indent": "off",
-      "@stylistic/quotes": "off",
-      "@stylistic/object-curly-spacing": "off",
       "@stylistic/indent-binary-ops": "off",
+      "@stylistic/object-curly-spacing": "off",
+      "@stylistic/quotes": "off",
       camelcase: [
         "warn",
         { allow: ["issue_number"] },
