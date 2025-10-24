@@ -32,6 +32,8 @@ jobs:
 
       # Lint any JS scripts (for embedded logic or examples)
       - name: Lint embedded JavaScript
+        env:
+          NODE_ENV: development
         run: |
           npm ci
-          eslint final_script.js
+          npx eslint final_script.js
