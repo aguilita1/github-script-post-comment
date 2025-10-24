@@ -15,13 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Validate action.yml is valid metadata
-      - name: Validate action metadata
+      - name: Validate action.yml Metadata
         run: |
           yq eval '.' action.yml > /dev/null
 
-      # Dry-run test your action
-      - name: Test run of the composite action
+      - name: Test Case 1 - Composite Action - Success Path
         uses: ./
         with:
           label: "Self-Test"
@@ -37,10 +35,17 @@ jobs:
           name: embedded-js
           path: 'final_script.js'
 
-      # Lint any JS scripts (for embedded logic or examples)
-      - name: Lint embedded JavaScript
+      - name: Lint Embedded JavaScript and project files
         env:
           NODE_ENV: development
         run: |
           npm ci
-          npx eslint final_script.js
+          npx eslint .
+
+      - name: Test Case 2 - Composite Action - No Return
+        uses: ./
+        with:
+          label: "Self-Test-No-Return"
+          post-target: github-step-summary
+          script: |
+            console.log("Expect error: script does not return string.");
