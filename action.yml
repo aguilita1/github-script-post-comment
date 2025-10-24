@@ -152,6 +152,7 @@ runs:
             }
 
             core.setOutput('result', JSON.stringify({ error: error.message }));
+            process.exit(1);
           } finally {
             try {
               const finalScript = core.getInput('script', { required: true });
