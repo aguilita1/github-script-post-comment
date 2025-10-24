@@ -1,4 +1,4 @@
-name: Validate Action
+name: Continuous Integration
 
 on:
   push:
@@ -44,8 +44,21 @@ jobs:
 
       - name: Test Case 2 - Composite Action - No Return
         uses: ./
+        id: test-no-return
         with:
           label: "Self-Test-No-Return"
-          post-target: github-step-summary
           script: |
             console.log("Expect error: script does not return string.");
+      - name: Capture output
+        run: |
+          # This step uses `run` to execute a shell command
+          ./action.sh > test_no_return.log 2>&1 || true
+
+      - name: Verify Test Case 2 output
+        run: |
+          if grep -q "💡 Hint: Your script returned a non-string value (e.g., object, array, or undefined) — or nothing at all." test_no_return.log; then
+            echo "✅ Output contains the expected hint."
+          else
+            echo "❌ Output does NOT contain the expected hint."
+            exit 1
+          fi
