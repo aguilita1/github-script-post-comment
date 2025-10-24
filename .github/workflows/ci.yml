@@ -33,6 +33,5 @@ jobs:
       # Lint any JS scripts (for embedded logic or examples)
       - name: Lint embedded JavaScript
         run: |
-          npm install -g eslint
+          npm ci
           eslint final_script.js
-
