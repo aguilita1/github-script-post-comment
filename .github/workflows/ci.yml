@@ -49,6 +49,8 @@ jobs:
           label: "Self-Test-No-Return"
           script: |
             console.log("Expect error: script does not return string.");
+      - name: Print the input tag to STDOUT
+        run: echo  The tags are ${{ inputs.tags }}
       - name: Capture output
         run: |
           # This step uses `run` to execute a shell command
@@ -63,5 +65,3 @@ jobs:
             echo "❌ Output does NOT contain the expected hint."
             exit 1
           fi
-      - name: Print the input tag to STDOUT
-        run: echo  The tags are ${{ inputs.tags }}
