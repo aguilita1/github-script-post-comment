@@ -19,11 +19,11 @@ jobs:
         run: |
           yq eval '.' action.yml > /dev/null
 
-      - name: Test Case 1 - Composite Action - Success Path
+      - name: Test Case 1 - Composite Action - Success Path with Defaults
         uses: ./
+        id: test-success-path-defaults
         with:
-          label: "Self-Test"
-          post-target: github-step-summary
+          label: "test-success-path-defaults"
           script: |
             console.log("✅ github-script-post-comment action executed in CI.");
             return "Self-test successful.";
@@ -47,7 +47,7 @@ jobs:
         id: test-no-return
         continue-on-error: true
         with:
-          label: "Self-Test-No-Return"
+          label: "test-no-return"
           script: |
             console.log("Expect error: script does not return string.");
 
@@ -56,7 +56,27 @@ jobs:
         id: test-return-non-string
         continue-on-error: true
         with:
-          label: "Self-Test-Return-Non-String"
+          label: "test-return-non-string"
           script: |
             console.log("Expect error: script returns non-string.");
             return {title: "Test Case 3", message: "test case return non-string", score: 50};
+
+      - name: Test Case 4 - Composite Action - Success Path with github-step-summary
+        uses: ./
+        id: test-success-path-github-step-summary
+        with:
+          label: "test-success-path-github-step-summary"
+          post-target: github-step-summary
+          script: |
+            console.log("✅ github-script-post-comment action executed in CI.");
+            return "Self-test successful.";
+
+      - name: Test Case 5 - Composite Action - Success Path with pull-request
+        uses: ./
+        id: test-success-path-pull-request
+        with:
+          label: "test-success-path-pull-request"
+          post-target: pull-request
+          script: |
+            console.log("✅ github-script-post-comment action executed in CI.");
+            return "Self-test successful.";
