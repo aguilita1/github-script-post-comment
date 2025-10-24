@@ -143,7 +143,7 @@ runs:
             console.error(`❌ Error processing ${{ inputs.label }} results:`, error);
 
             // Detect when user forgot to return a value (causing body = undefined)
-            if (error.code === 'ERR_INVALID_ARG_TYPE' && /The "data" argument must be of type string/i.test(error.message)) {
+            if (error.status === 'ERR_INVALID_ARG_TYPE' && /The "data" argument must be of type string/i.test(error.message)) {
               console.error(`💡 Hint: Your script returned a non-string value (e.g., object, array, or undefined) — or nothing at all.\n`
                           + `Please return a string, or serialize your result using JSON.stringify.\n\n`
                           + `For example:\n\n`
