@@ -93,6 +93,7 @@ runs:
               console.warn(`⚠️ Invalid post-target value '${postTarget}'. Defaulting to 'both'.`);
               postTarget = 'both';
             }
+
             console.info("Received Input Label:", "${{ inputs.label }}");
             console.info("Received Input post-target:", postTarget);
             console.info("Reading ext_script.js...");
@@ -100,7 +101,7 @@ runs:
 
             // Dynamically execute the input script provided in GitHub Action
             console.info('🚀 Executing user script...');
-            // passing github, and context to function
+            // Passing github, and context to function
             const func = new Function('github', 'context', 'core', 'glob', 'io', 'exec', 'require', `
               return (async () => {
                 ${scriptContent}
@@ -143,13 +144,11 @@ runs:
 
             // Detect when user forgot to return a value (causing body = undefined)
             if ( error.code === 'ERR_INVALID_ARG_TYPE' && /The "data" argument must be of type string/i.test(error.message)) {
-              console.error(
-                `💡 Hint: Your script returned a non-string value (e.g., object, array, or undefined) — or nothing at all.\n` +
-                `Please return a string, or serialize your result using JSON.stringify.\n\n` +
-                `For example:\n\n` +
-                `  // If your script builds an object called 'result':\n` +
-                `  return \`✅ Passed Test Coverage Gate, results:\\n\\n\${JSON.stringify(result, null, 2)}\`;\n`
-              );
+              console.error(`💡 Hint: Your script returned a non-string value (e.g., object, array, or undefined) — or nothing at all.\n`
+                          + `Please return a string, or serialize your result using JSON.stringify.\n\n`
+                          + `For example:\n\n`
+                          + `  // If your script builds an object called 'result':\n`
+                          + `  return \`✅ Passed Test Coverage Gate, results:\\n\\n\${JSON.stringify(result, null, 2)}\`;\n`);
             }
 
             core.setOutput('result', JSON.stringify({ error: error.message }));
