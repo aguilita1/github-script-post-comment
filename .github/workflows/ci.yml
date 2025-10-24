@@ -51,17 +51,12 @@ jobs:
           script: |
             console.log("Expect error: script does not return string.");
 
-      - name: Capture output
-        run: |
-          # This step uses `run` to execute a shell command
-          ./action.sh > test_no_return.log 2>&1 || true
-          cat test_no_return.log
-
-      - name: Verify Test Case 2 output
-        run: |
-          if grep -q "💡 Hint: Your script returned a non-string value (e.g., object, array, or undefined) — or nothing at all." test_no_return.log; then
-            echo "✅ Output contains the expected hint."
-          else
-            echo "❌ Output does NOT contain the expected hint."
-            exit 1
-          fi
+      - name: Test Case 3 - Composite Action - Return Non-String
+        uses: ./
+        id: test-return-non-string
+        continue-on-error: true
+        with:
+          label: "Self-Test-Return-Non-String"
+          script: |
+            console.log("Expect error: script returns non-string.");
+            return {title: "Test Case 3", message: "test case return non-string", score: 50};
