@@ -1,5 +1,7 @@
 # aguilita1/github-script-post-comment
 
+[![Continuous Integration](https://github.com/aguilita1/github-script-post-comment/actions/workflows/ci.yml/badge.svg)](https://github.com/aguilita1/github-script-post-comment/actions/workflows/ci.yml)
+
 This action extends `actions/github-script` and makes it easy to quickly write
 a script in your workflow that uses the GitHub API and the workflow run context
 then posts comment to Pull Request and GitHub Summary.
