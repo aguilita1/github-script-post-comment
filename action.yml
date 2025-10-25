@@ -115,10 +115,8 @@ runs:
 
             // Validate that the returned body is a string
             if (typeof body !== 'string') {
-              throw new TypeError(
-                `Returned value from user script must be a string. Received type '${typeof body}'. ` +
-                `Please return a string, or serialize your result using JSON.stringify.`
-              );
+              throw new TypeError(`Returned value from user script must be a string. Received type '${typeof body}'. `
+                                + `Please return a string, or serialize your result using JSON.stringify.`);
             }
 
             // Output to GITHUB_STEP_SUMMARY
