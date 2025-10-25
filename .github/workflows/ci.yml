@@ -96,19 +96,6 @@ jobs:
             console.log("Expect error: script returns non-string.");
             return {title: "Test Case 3", message: "test case return non-string", score: 50};
 
-      - name: Verify both expected failures occurred
-        id: verify-failure
-        if: steps.test-no-return.outcome == 'failure' && steps.test-return-non-string.outcome == 'failure'
-        run: |
-          echo "✅ All expected negative tests failed as anticipated."
-
-      - name: Fail job if any expected failure did NOT occur
-        id: verify-not-failure
-        if: steps.test-no-return.outcome != 'failure' || steps.test-return-non-string.outcome != 'failure'
-        run: |
-          echo "❌ One or more expected negative tests did not fail."
-          exit 1
-
       - name: Job Outcome
         id: negative-tests-outcome
         if: always()
@@ -116,12 +103,12 @@ jobs:
           echo "steps.test-no-return.outcome = ${{ steps.test-no-return.outcome }}"
           echo "steps.test-return-non-string.outcome = ${{ steps.test-return-non-string.outcome }}"
 
-          if(steps.test-no-return.outcome == 'failure' && steps.test-return-non-string.outcome == 'failure'){
+          if [[ "${{ steps.test-no-return.outcome }}" == "failure" && "${{ steps.test-return-non-string.outcome }}" == "failure" ]]; then
             echo "✅ All negative tests failed as expected."
-          } else {
+          else
             echo "❌ One or more expected negative tests did not fail."
             exit 1
-          }
+          fi
 
   test-summary:
     name: Test Summary
