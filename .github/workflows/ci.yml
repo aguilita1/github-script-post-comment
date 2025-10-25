@@ -14,11 +14,15 @@ jobs:
   lint-and-test:
     name: Lint and Test
     runs-on: ubuntu-latest
+    outputs:
+      test_result: ${{ steps.lint-and-test-outcome.outcome }}
+      lint_result: ${{ steps.negative-tests-outcome.outcome }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Validate action.yml Metadata
+        id: validate-action-yml
         run: |
           yq eval '.' action.yml > /dev/null
 
@@ -39,6 +43,7 @@ jobs:
           path: 'final_script.js'
 
       - name: Lint Embedded JavaScript and project files
+        id: lint-check
         env:
           NODE_ENV: development
         run: |
@@ -64,6 +69,35 @@ jobs:
           script: |
             console.log("✅ github-script-post-comment action executed in CI.");
             return "✅ Test Case 3 - Composite Action - Success Path with pull-request.";
+      - name: Lint Outcome
+        id: lint-outcome
+        if: always()
+        run: |
+          echo "steps.validate-action-yml.outcome = ${{ steps.validate-action-yml.outcome }}"
+          echo "steps.lint-check.outcome = ${{ steps.lint-check.outcome }}"
+
+          if [[ "${{ steps.validate-action-yml.outcome }}" == "success" && "${{ steps.lint-check.outcome }}" == "success" ]]; then
+            echo "✅ Linting passed."
+            echo "✅ Linting passed." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ One or more lint rules failed."
+            echo "❌ One or more lint rules failed." >> $GITHUB_STEP_SUMMARYs
+          fi
+      - name: Job Outcome
+        id: positive-test-outcome
+        if: always()
+        run: |
+          echo "steps.test-success-path-defaults.outcome = ${{ steps.test-success-path-defaults.outcome }}"
+          echo "steps.test-success-path-github-step-summary.outcome = ${{ steps.test-success-path-github-step-summary.outcome }}"
+          echo "steps.test-success-path-pull-request.outcome = ${{ steps.test-success-path-pull-request.outcome }}"
+
+          if [[ "${{ steps.test-success-path-defaults.outcome }}" == "success" && "${{ steps.test-success-path-github-step-summary.outcome }}" == "success" && "${{ steps.test-success-path-pull-request.outcome }}" == "success" ]]; then
+            echo "✅ All positive tests passed."
+            echo "✅ All positive tests passed." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ One or more positive tests failed."
+            echo "❌ One or more positive tests failed." >> $GITHUB_STEP_SUMMARY
+          fi
 
   negative-tests:
     name: Negative Test - Expected to Fail
@@ -128,7 +162,8 @@ jobs:
             let body = "## 🧪 Test Summary\n\n"
                 + "| Check | Status |\n"
                 + "|-------|--------|\n"
-                + "| Lint & Test | ${{ needs.lint-and-test.result == 'success' && '✅ Passed' || '❌ Failed' }} |\n"
-                + "| Negative Test | ${{ needs.negative-tests.outputs.test_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n\n";
+                + "| Lint Rules | ${{ needs.lint-and-test.lint_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n"
+                + "| Positive Tests | ${{ needs.lint-and-test.test_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n"
+                + "| Negative Tests | ${{ needs.negative-tests.outputs.test_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n\n";
 
             return body;
