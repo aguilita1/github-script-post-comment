@@ -12,11 +12,17 @@ permissions:
 
 jobs:
   lint-and-test:
+    name: Linting and Positive Tests
     runs-on: ubuntu-latest
+    outputs:
+      test_result: ${{ steps.positive-test-outcome.outcome }}
+      lint_result: ${{ steps.lint-outcome.outcome }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Validate action.yml Metadata
+        id: validate-action-yml
         run: |
           yq eval '.' action.yml > /dev/null
 
@@ -27,7 +33,7 @@ jobs:
           label: "test-success-path-defaults"
           script: |
             console.log("✅ github-script-post-comment action executed in CI.");
-            return "Self-test successful.";
+            return "✅ Test Case 1 - Composite Action - Success Path with Defaults.";
 
       - name: Upload Embedded JavaScript
         uses: actions/upload-artifact@v4
@@ -37,32 +43,14 @@ jobs:
           path: 'final_script.js'
 
       - name: Lint Embedded JavaScript and project files
+        id: lint-check
         env:
           NODE_ENV: development
         run: |
           npm ci
           npx eslint .
 
-      - name: Test Case 2 - Composite Action - No Return
-        uses: ./
-        id: test-no-return
-        continue-on-error: true
-        with:
-          label: "test-no-return"
-          script: |
-            console.log("Expect error: script does not return string.");
-
-      - name: Test Case 3 - Composite Action - Return Non-String
-        uses: ./
-        id: test-return-non-string
-        continue-on-error: true
-        with:
-          label: "test-return-non-string"
-          script: |
-            console.log("Expect error: script returns non-string.");
-            return {title: "Test Case 3", message: "test case return non-string", score: 50};
-
-      - name: Test Case 4 - Composite Action - Success Path with github-step-summary
+      - name: Test Case 2 - Composite Action - Success Path with github-step-summary
         uses: ./
         id: test-success-path-github-step-summary
         with:
@@ -70,9 +58,9 @@ jobs:
           post-target: github-step-summary
           script: |
             console.log("✅ github-script-post-comment action executed in CI.");
-            return "Self-test successful.";
+            return "✅ Test Case 2 - Composite Action - Success Path with github-step-summary.";
 
-      - name: Test Case 5 - Composite Action - Success Path with pull-request
+      - name: Test Case 3 - Composite Action - Success Path with pull-request
         uses: ./
         id: test-success-path-pull-request
         with:
@@ -80,4 +68,104 @@ jobs:
           post-target: pull-request
           script: |
             console.log("✅ github-script-post-comment action executed in CI.");
-            return "Self-test successful.";
+            return "✅ Test Case 3 - Composite Action - Success Path with pull-request.";
+      - name: Lint Outcome
+        id: lint-outcome
+        if: always()
+        run: |
+          echo "steps.validate-action-yml.outcome = ${{ steps.validate-action-yml.outcome }}"
+          echo "steps.lint-check.outcome = ${{ steps.lint-check.outcome }}"
+
+          if [[ "${{ steps.validate-action-yml.outcome }}" == "success" && "${{ steps.lint-check.outcome }}" == "success" ]]; then
+            echo "✅ Linting passed."
+            echo "✅ Linting passed." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ One or more lint rules failed."
+            echo "❌ One or more lint rules failed." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+      - name: Job Outcome
+        id: positive-test-outcome
+        if: always()
+        run: |
+          echo "steps.test-success-path-defaults.outcome = ${{ steps.test-success-path-defaults.outcome }}"
+          echo "steps.test-success-path-github-step-summary.outcome = ${{ steps.test-success-path-github-step-summary.outcome }}"
+          echo "steps.test-success-path-pull-request.outcome = ${{ steps.test-success-path-pull-request.outcome }}"
+
+          if [[ "${{ steps.test-success-path-defaults.outcome }}" == "success" && "${{ steps.test-success-path-github-step-summary.outcome }}" == "success" && "${{ steps.test-success-path-pull-request.outcome }}" == "success" ]]; then
+            echo "✅ All positive tests passed."
+            echo "✅ All positive tests passed." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ One or more positive tests failed or did not run."
+            echo "❌ One or more positive tests failed or did not run." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+  negative-tests:
+    name: Negative Tests - Expected to Fail
+    runs-on: ubuntu-latest
+    outputs:
+      test_result: ${{ steps.negative-tests-outcome.outcome }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Test Case 4 - Composite Action - No Return
+        uses: ./
+        id: test-no-return
+        continue-on-error: true
+        with:
+          label: "test-no-return"
+          script: |
+            console.log("Test Case 2 - Composite Action - No Return");
+            console.log("Expect error: script does not return string.");
+
+      - name: Test Case 5 - Composite Action - Return Non-String
+        uses: ./
+        id: test-return-non-string
+        continue-on-error: true
+        with:
+          label: "test-return-non-string"
+          script: |
+            console.log("Test Case 3 - Composite Action - Return Non-String");            
+            console.log("Expect error: script returns non-string.");
+            return {title: "Test Case 3", message: "test case return non-string", score: 50};
+
+      - name: Job Outcome
+        id: negative-tests-outcome
+        if: always()
+        run: |
+          echo "steps.test-no-return.outcome = ${{ steps.test-no-return.outcome }}"
+          echo "steps.test-return-non-string.outcome = ${{ steps.test-return-non-string.outcome }}"
+
+          if [[ "${{ steps.test-no-return.outcome }}" == "failure" && "${{ steps.test-return-non-string.outcome }}" == "failure" ]]; then
+            echo "✅ All negative tests failed as expected."
+            echo "✅ All negative tests failed as expected." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ One or more negative tests did not fail as expected."
+            echo "❌ One or more negative tests did not fail as expected." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [lint-and-test, negative-tests]
+    if: always()
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+      - name: Add Test Summary
+        uses: ./
+        with:
+          label: "Test Summary"
+          script: |
+            let body = "## 🧪 Test Summary\n\n"
+                + "| Check | Status |\n"
+                + "|-------|--------|\n"
+                + "| Lint Rules | ${{ needs.lint-and-test.outputs.lint_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n"
+                + "| Positive Tests | ${{ needs.lint-and-test.outputs.test_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n"
+                + "| Negative Tests | ${{ needs.negative-tests.outputs.test_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n\n";
+
+            return body;
