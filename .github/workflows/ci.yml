@@ -81,7 +81,8 @@ jobs:
             echo "✅ Linting passed." >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ One or more lint rules failed."
-            echo "❌ One or more lint rules failed." >> $GITHUB_STEP_SUMMARYs
+            echo "❌ One or more lint rules failed." >> $GITHUB_STEP_SUMMARY
+            exit 1
           fi
       - name: Job Outcome
         id: positive-test-outcome
@@ -97,6 +98,7 @@ jobs:
           else
             echo "❌ One or more positive tests failed."
             echo "❌ One or more positive tests failed." >> $GITHUB_STEP_SUMMARY
+            exit 1
           fi
 
   negative-tests:
