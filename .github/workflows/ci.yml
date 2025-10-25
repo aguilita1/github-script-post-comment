@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   lint-and-test:
-    name: Lint and Positive Tests
+    name: Linting and Positive Tests
     runs-on: ubuntu-latest
     outputs:
       test_result: ${{ steps.positive-test-outcome.outcome }}
@@ -162,8 +162,8 @@ jobs:
             let body = "## 🧪 Test Summary\n\n"
                 + "| Check | Status |\n"
                 + "|-------|--------|\n"
-                + "| Lint Rules | ${{ needs.lint-and-test.lint_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n"
-                + "| Positive Tests | ${{ needs.lint-and-test.test_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n"
+                + "| Lint Rules | ${{ needs.lint-and-test.outputs.lint_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n"
+                + "| Positive Tests | ${{ needs.lint-and-test.outputs.test_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n"
                 + "| Negative Tests | ${{ needs.negative-tests.outputs.test_result == 'success' && '✅ Passed' || '❌ Failed' }} |\n\n";
 
             return body;
