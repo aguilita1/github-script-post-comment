@@ -36,7 +36,7 @@ jobs:
             return "✅ Test Case 1 - Composite Action - Success Path with Defaults.";
 
       - name: Upload Embedded JavaScript
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: embedded-js
