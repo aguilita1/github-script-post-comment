@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # Define an output for the job
-      final_result: ${{ steps.verify-failure.conclusion }} &&  ${{ steps.verify-not-failure.conclusion }}
+      final_result: ${{ steps.verify-failure.conclusion == 'success' && steps.verify-not-failure.conclusion != 'success'}}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
