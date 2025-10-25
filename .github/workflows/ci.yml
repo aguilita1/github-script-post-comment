@@ -108,6 +108,13 @@ jobs:
           echo "❌ One or more expected negative tests did not fail."
           exit 1
 
+      - name: Job Outcome
+        id: negative-tests-outcome
+        if: always()
+        run: |
+          echo "steps.verify-failure.conclusion = ${{ steps.verify-failure.conclusion }}"
+          echo "steps.verify-not-failure.conclusion = ${{steps.verify-not-failure.conclusion }}"
+
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
