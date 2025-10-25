@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # Define an output for the job
-      final_result: ${{ steps.verify-failure.conclusion }}
+      final_result: ${{ steps.verify-failure.conclusion }} &&  ${{ steps.verify-not-failure.conclusion }}
     steps:
       - name: Test Case 4 - Composite Action - No Return
         uses: ./
@@ -99,6 +99,7 @@ jobs:
           echo "✅ All expected negative tests failed as anticipated."
 
       - name: Fail job if any expected failure did NOT occur
+        id: verify-not-failure
         if: steps.test-no-return.outcome != 'failure' || steps.test-return-non-string.outcome != 'failure'
         run: |
           echo "❌ One or more expected negative tests did not fail."
