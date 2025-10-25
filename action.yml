@@ -113,6 +113,14 @@ runs:
             // Store the result as an output for downstream steps
             core.setOutput('result', JSON.stringify(body));
 
+            // Validate that the returned body is a string
+            if (typeof body !== 'string') {
+              throw new TypeError(
+                `Returned value from user script must be a string. Received type '${typeof body}'. ` +
+                `Please return a string, or serialize your result using JSON.stringify.`
+              );
+            }
+
             // Output to GITHUB_STEP_SUMMARY
             if (postTarget === 'both' || postTarget === 'github-step-summary') {
               const summaryPath = process.env.GITHUB_STEP_SUMMARY;
