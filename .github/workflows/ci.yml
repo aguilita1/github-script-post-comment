@@ -53,7 +53,7 @@ jobs:
           post-target: github-step-summary
           script: |
             console.log("✅ github-script-post-comment action executed in CI.");
-            return "✅ Test Case 2 - Composite Action - Success Path with github-step-summary.";
+            return {ID: 1, MESSAGE: "✅ Test Case 2 - Composite Action - Success Path with github-step-summary."};
 
       - name: Test Case 3 - Composite Action - Success Path with pull-request
         uses: ./
