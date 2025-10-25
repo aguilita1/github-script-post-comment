@@ -12,11 +12,11 @@ permissions:
 
 jobs:
   lint-and-test:
-    name: Lint and Test
+    name: Lint and Positive Tests
     runs-on: ubuntu-latest
     outputs:
-      test_result: ${{ steps.lint-and-test-outcome.outcome }}
-      lint_result: ${{ steps.negative-tests-outcome.outcome }}
+      test_result: ${{ steps.positive-test-outcome.outcome }}
+      lint_result: ${{ steps.lint-outcome.outcome }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -100,7 +100,7 @@ jobs:
           fi
 
   negative-tests:
-    name: Negative Test - Expected to Fail
+    name: Negative Tests - Expected to Fail
     runs-on: ubuntu-latest
     outputs:
       test_result: ${{ steps.negative-tests-outcome.outcome }}
