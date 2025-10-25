@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   lint-and-test:
+    name: Lint and Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -68,7 +69,6 @@ jobs:
     name: Negative Test - Expected to Fail
     runs-on: ubuntu-latest
     outputs:
-      # Define an output for the job
       test_result: ${{ steps.negative-tests-outcome.outcome }}
     steps:
       - name: Checkout Code
@@ -83,7 +83,6 @@ jobs:
           script: |
             console.log("Test Case 2 - Composite Action - No Return");
             console.log("Expect error: script does not return string.");
-            return "true";
 
       - name: Test Case 5 - Composite Action - Return Non-String
         uses: ./
@@ -106,7 +105,7 @@ jobs:
           if [[ "${{ steps.test-no-return.outcome }}" == "failure" && "${{ steps.test-return-non-string.outcome }}" == "failure" ]]; then
             echo "✅ All negative tests failed as expected."
           else
-            echo "❌ One or more expected negative tests did not fail."
+            echo "❌ One or more negative tests did not fail as expected."
             exit 1
           fi
 
