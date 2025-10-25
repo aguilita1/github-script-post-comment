@@ -19,7 +19,7 @@ jobs:
       lint_result: ${{ steps.lint-outcome.outcome }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Validate action.yml Metadata
         id: validate-action-yml
@@ -108,7 +108,7 @@ jobs:
       test_result: ${{ steps.negative-tests-outcome.outcome }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Test Case 4 - Composite Action - No Return
         uses: ./
