@@ -71,6 +71,9 @@ jobs:
       # Define an output for the job
       final_result: ${{ steps.verify-failure.conclusion }} &&  ${{ steps.verify-not-failure.conclusion }}
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Test Case 4 - Composite Action - No Return
         uses: ./
         id: test-no-return
