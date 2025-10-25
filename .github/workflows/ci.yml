@@ -83,6 +83,7 @@ jobs:
           script: |
             console.log("Test Case 2 - Composite Action - No Return");
             console.log("Expect error: script does not return string.");
+            return "true";
 
       - name: Test Case 5 - Composite Action - Return Non-String
         uses: ./
