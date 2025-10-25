@@ -59,12 +59,15 @@ runs:
     - name: Write script to file
       shell: bash
       run: |
+        # Ensure the temp directory exists (usually does, but just in case)
+        mkdir -p "${RUNNER_TEMP}"
+
         # WARNING: Must use single-quoted HEREDOC (<<'EOF') to write the script
         # exactly as provided. This preserves characters like $, ${}, 
         # backticks, and multiline formatting without shell or YAML 
         # interpolation — ensuring the JavaScript is written to the file 
         # verbatim.
-        cat <<'EOF' > ext_script.js
+        cat <<'EOF' > "${RUNNER_TEMP}/ext_script.js"
         ${{ inputs.script }}
         EOF
 
@@ -96,8 +99,10 @@ runs:
 
             console.info("Received Input Label:", "${{ inputs.label }}");
             console.info("Received Input post-target:", postTarget);
-            console.info("Reading ext_script.js...");
-            const scriptContent = fs.readFileSync('ext_script.js', 'utf8');
+            const path = require('path');
+            const scriptPath = path.join(process.env.RUNNER_TEMP, 'ext_script.js');
+            console.info(`📄 Reading script from ${scriptPath}`);
+            const scriptContent = fs.readFileSync(scriptPath, 'utf8');
 
             // Dynamically execute the input script provided in GitHub Action
             console.info('🚀 Executing user script...');
