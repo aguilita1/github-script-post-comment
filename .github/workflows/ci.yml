@@ -112,8 +112,8 @@ jobs:
         id: negative-tests-outcome
         if: always()
         run: |
-          echo "steps.verify-failure.conclusion = ${{ steps.verify-failure.conclusion }}"
-          echo "steps.verify-not-failure.conclusion = ${{steps.verify-not-failure.conclusion }}"
+          echo "steps.test-no-return.outcome = ${{ steps.test-no-return.outcome }}"
+          echo "steps.test-return-non-string.outcome = ${{ steps.test-return-non-string.outcome }}"
 
   test-summary:
     name: Test Summary
