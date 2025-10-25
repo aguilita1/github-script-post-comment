@@ -104,8 +104,10 @@ jobs:
 
           if [[ "${{ steps.test-no-return.outcome }}" == "failure" && "${{ steps.test-return-non-string.outcome }}" == "failure" ]]; then
             echo "✅ All negative tests failed as expected."
+            echo "✅ All negative tests failed as expected." >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ One or more negative tests did not fail as expected."
+            echo "❌ One or more negative tests did not fail as expected." >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
 
@@ -123,7 +125,7 @@ jobs:
         with:
           label: "Test Summary"
           script: |
-            let body = "## 🔒 Test Summary\n\n"
+            let body = "## 🧪 Test Summary\n\n"
                 + "| Check | Status |\n"
                 + "|-------|--------|\n"
                 + "| Lint & Test | ${{ needs.lint-and-test.result == 'success' && '✅ Passed' || '❌ Failed' }} |\n"
